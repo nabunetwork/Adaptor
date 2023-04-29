@@ -6,4 +6,4 @@ More information can be found at [NabuNetwork.com](https://www.nabunetwork.com/r
 
 ## No hardware? No Problem
 
-NABU PC can be emulated with [MAME](https://gtamp.com/nabu/), and the standalone NABU emulator [Marduk](https://github.com/buricco/marduk)
+The NABU Personal Computer can be emulated with [MAME](https://gtamp.com/nabu/), and the standalone NABU emulator [Marduk](https://github.com/buricco/marduk)
