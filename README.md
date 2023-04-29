@@ -9,4 +9,4 @@ More information and documentation on how to use the NabuNetwork.com Internet Ad
 
 ## No hardware? No Problem
 
-The NABU Personal Computer can be emulated with [MAME](https://gtamp.com/nabu/), and the standalone NABU emulator [Marduk](https://github.com/buricco/marduk)
+The NABU Personal Computer can be emulated with [NABU MAME](https://gtamp.com/nabu/), and the standalone NABU emulator [Marduk](https://github.com/buricco/marduk).
