@@ -7,6 +7,11 @@ The NABU Network Adaptor Software and can run under Windows, Mono (Mac, Linux, R
 
 Detailed information and documentation on how to use the [NabuNetwork.com Internet Adapter software](https://www.nabunetwork.com/resources/nabu-network-internet-adapter-software/) can be found at [NabuNetwork.com](https://www.nabunetwork.com/resources/nabu-network-internet-adapter-software/).
 
-## No hardware? No Problem
+## No NABU hardware? No Problem
 
 The NABU Personal Computer can be emulated with [NABU MAME](https://gtamp.com/nabu/), and the standalone NABU emulator [Marduk](https://github.com/buricco/marduk).
+
+## Brought to you by
+
+- [The NabuNetwork.com Development Team](https://nabunetwork.com/about-us/)
+- [Geek With Social Skills](https://www.youtube.com/@geekwithsocialskills)
