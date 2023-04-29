@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProjectGuid>{DAC0B4FF-6B4D-4CA1-9317-281525C729DE}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>NabuAdaptorLinux</RootNamespace>
+    <AssemblyName>NabuAdaptor</AssemblyName>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <ApplicationIcon>nabu.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG; MONO</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <DefineConstants>MONO</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="gtk-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="gdk-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="glib-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="glade-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="pango-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="atk-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="Mono.Posix" />
+    <Reference Include="System.Xml.Serialization" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="gtk-gui\gui.stetic">
+      <LogicalName>gui.stetic</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="nabu.ico" />
+    <EmbeddedResource Include="Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <CustomToolNamespace>NabuServerGui.Properties</CustomToolNamespace>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\common\Extensions\CRCCDMA.cs" Link="Extensions\CRCCDMA.cs" />
+    <Compile Include="..\common\Extensions\NHACPExtension.cs" Link="Extensions\NHACPExtension.cs" />
+    <Compile Include="..\common\Extensions\NHACPFrame.cs" Link="Extensions\NHACPFrame.cs" />
+    <Compile Include="..\common\Extensions\NHACPSession.cs" Link="Extensions\NHACPSession.cs" />
+    <Compile Include="..\common\Extensions\HeadlessExtension.cs" Link="Extensions\HeadlessExtension.cs" />
+    <Compile Include="..\common\Extensions\FileStoreExtension.cs" Link="Extensions\FileStoreExtension.cs" />
+    <Compile Include="..\common\Extensions\NHACPTypes.cs" Link="Extensions\NHACPTypes.cs" />
+    <Compile Include="..\common\FileTypes\FileDetails.cs" Link="FileTypes\FileDetails.cs" />
+    <Compile Include="..\common\FileTypes\FileHandle.cs" Link="FileTypes\FileHandle.cs" />
+    <Compile Include="..\common\CRC.cs" Link="Common\CRC.cs" />
+    <Compile Include="..\common\Target.cs" Link="Common\Target.cs" />
+    <Compile Include="..\common\IConnection.cs" Link="Common\IConnection.cs" />
+    <Compile Include="..\common\ILoader.cs" Link="Common\ILoader.cs" />
+    <Compile Include="..\common\IServerExtension.cs" Link="Common\IServerExtension.cs" />
+    <Compile Include="..\common\LocalLoader.cs" Link="Common\LocalLoader.cs" />
+    <Compile Include="..\common\Logger.cs" Link="Common\Logger.cs" />
+    <Compile Include="..\common\NabuPacket.cs" Link="Common\FileHandle.cs" />
+    <Compile Include="..\common\NabuSegment.cs" Link="Common\NabuPacket.cs" />
+    <Compile Include="..\common\ProgressEventArgs.cs" Link="Common\ProgressEventArgs.cs" />
+    <Compile Include="..\common\SegmentManager.cs" Link="Common\SegmentManager.cs" />
+    <Compile Include="..\common\SerialConnection.cs" Link="Common\SerialConnection.cs" />
+    <Compile Include="..\common\Server.cs" Link="Common\Server.cs" />
+    <Compile Include="..\common\Settings.cs" Link="Common\Settings.cs" />
+    <Compile Include="..\common\Spinner.cs" Link="Common\Spinner.cs" />
+    <Compile Include="..\common\StreamExtensions.cs" Link="Common\StreamExtensions.cs" />
+    <Compile Include="..\common\TcpConnection.cs" Link="Common\TcpConnection.cs" />
+    <Compile Include="..\common\WebClientWrapper.cs" Link="Common\WebClientWrapper.cs" />
+    <Compile Include="..\common\WebLoader.cs" Link="Common\WebLoader.cs" />
+    <Compile Include="gtk-gui\NabuAdaptorLinux.DisplaySettings.cs" />
+  </ItemGroup>
+  <ItemGroup> 
+    <Compile Include="gtk-gui\generated.cs" />
+    <Compile Include="MainWindow.cs" />
+    <Compile Include="gtk-gui\MainWindow.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="About.cs" />
+    <Compile Include="gtk-gui\NabuAdaptorLinux.About.cs" />
+    <Compile Include="DisplaySettings.cs" />
+    <Compile Include="Resources.Designer.cs">
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+</Project>
