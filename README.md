@@ -22,4 +22,4 @@ The NABU Personal Computer can be emulated with [NABU MAME](https://gtamp.com/na
 
 - Special thanks to NABU Software Engineering legend, [Leo Binkowski](https://www.youtube.com/@leo.binkowski) for preserving his hardware and software so we can recreate the original NABU computer experience from the 1980s and work on creating new and exciting things in 2022 and beyond!
 - Thank you to Zbigniew Stachniak and the entire crew at [York University](https://museum.eecs.yorku.ca/nabu) for their NABU Network Reconstruction Project efforts (2005-2010), they are both numerous and awesome.
--Also a quick shout-out to [DJ Sures](https://youtube.com/DJ_Sures) for his early work on getting communications going with the NABU computer featured on Nabu.ca and his entertaining videos documenting his passion for the NABU computer.
+- Also a quick shout-out to [DJ Sures](https://youtube.com/DJ_Sures) for his early work on getting communications going with the NABU computer featured on Nabu.ca and his entertaining videos documenting his passion for the NABU computer.
