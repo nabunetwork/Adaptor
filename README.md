@@ -5,6 +5,8 @@ as well as [Adrian Black's video](https://www.youtube.com/watch?v=HLYjZoShjy0) a
 
 The NABU Network Adaptor Software and can run under Windows, Mono (Mac, Linux, Raspberry Pi, etc), and Console based on the .NET framework. It can be used with real NABU PCs and Emulators like MAME and Marduk.
 
+## Additional information and Documentation
+
 Detailed information and documentation on how to use the [NabuNetwork.com Internet Adapter software](https://www.nabunetwork.com/resources/nabu-network-internet-adapter-software/) can be found at [NabuNetwork.com](https://www.nabunetwork.com/resources/nabu-network-internet-adapter-software/).
 
 ## No NABU hardware? No Problem
