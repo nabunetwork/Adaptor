@@ -9,7 +9,7 @@ The NABU Network Adaptor Software can run under Windows, Mono (Mac, Linux, Raspb
 
 Detailed information and documentation on how to use the [NabuNetwork.com Internet Adapter software](https://www.nabunetwork.com/resources/nabu-network-internet-adapter-software/) can be found at [NabuNetwork.com](https://www.nabunetwork.com/resources/nabu-network-internet-adapter-software/).
 
-## NABU Network Internet Adapter Software Downloads:
+## Compiled NABU PC Internet Adapter Software Downloads:
 
 Compiled versions (Windows, MacOS and Linux) of the [NabuNetwork.com Internet Adapter software](https://www.nabunetwork.com/resources/nabu-network-internet-adapter-software/) can be found at [NabuNetwork.com](https://www.nabunetwork.com/resources/nabu-network-internet-adapter-software/).
 
