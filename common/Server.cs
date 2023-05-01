@@ -307,7 +307,11 @@ namespace NabuAdaptor
                 }
             }
 
-            if (segmentNumber != 0x1 && segmentNumber != 0x2 && segmentNumber != 0x7FFFFF && this.Settings.Location == Settings.SourceLocation.Headless)
+            if (segmentNumber != 0x1 && 
+                segmentNumber != 0x2 &&
+                segmentNumber != 0x3 &&
+                segmentNumber != 0x7FFFFF && 
+                this.Settings.Location == Settings.SourceLocation.Headless)
             {
                 this.CycleCount = 0;
             }
