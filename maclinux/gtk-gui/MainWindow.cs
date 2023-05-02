@@ -670,6 +670,7 @@ public partial class MainWindow
 		this.radiobuttonHomebrew.Clicked += new global::System.EventHandler(this.OnRadiobuttonHomeBrewClicked);
 		this.comboHomeBrew.Changed += new global::System.EventHandler(this.OnComboHomeBrewChanged);
 		this.radiobuttonGameRoom.Clicked += new global::System.EventHandler(this.OnRadiobuttonGameRoomClicked);
+		this.comboGameRoom.Changed += new global::System.EventHandler(this.OnComboGameRoomChanged);
 		this.radioButtonLocalDirectory.Clicked += new global::System.EventHandler(this.OnRadiobuttonLocalDirectoryClicked);
 		this.txtLocalPath.Changed += new global::System.EventHandler(this.OnTxtLocalPathChanged);
 		this.radioButtonHeadless.Clicked += new global::System.EventHandler(this.OnRadiobuttonHeadlessClicked);

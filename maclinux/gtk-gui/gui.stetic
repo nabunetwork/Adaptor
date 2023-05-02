@@ -4,7 +4,7 @@
     <images-root-path>..</images-root-path>
   </configuration>
   <import>
-    <widget-library name="../bin/Release/NabuAdaptor.exe" internal="true" />
+    <widget-library name="../bin/Debug/NabuAdaptor.exe" internal="true" />
   </import>
   <icon-factory>
     <icon-set id="Nabu">
@@ -295,6 +295,7 @@
                                 <property name="WidthRequest">430</property>
                                 <property name="IsTextCombo">True</property>
                                 <property name="Items" translatable="yes" />
+                                <signal name="Changed" handler="OnComboGameRoomChanged" />
                               </widget>
                             </child>
                           </widget>
