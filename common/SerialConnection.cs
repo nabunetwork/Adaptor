@@ -90,9 +90,12 @@ namespace NabuAdaptor
             this.serialPort.Parity = Parity.None;
             this.serialPort.DataBits = 8;
 
-            #if !MONO
-            this.serialPort.ReceivedBytesThreshold = 1;
-            #endif
+            try
+            {
+                this.serialPort.ReceivedBytesThreshold = 1;
+            }
+            catch (NotImplementedException)
+            { }
 
             this.serialPort.ReadBufferSize = 8192;
             this.serialPort.WriteBufferSize = 8192;

@@ -20,6 +20,7 @@
 namespace NabuAdaptor
 {
     using System;
+    using System.Net;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -40,12 +41,18 @@ namespace NabuAdaptor
             // Create the server
             Server server = new Server(settings);
 
+            if (settings.IgnoreCertificateErrors)
+            {
+                ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+            }
+
             CancellationTokenSource source = new CancellationTokenSource();
 
             // Run the server
             do
             {
                 Task task = Task.Run(() => server.RunServer(source.Token));
+                Console.ReadLine();
 
                 do
                 {
