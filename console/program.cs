@@ -52,7 +52,6 @@ namespace NabuAdaptor
             do
             {
                 Task task = Task.Run(() => server.RunServer(source.Token));
-                Console.ReadLine();
 
                 do
                 {
