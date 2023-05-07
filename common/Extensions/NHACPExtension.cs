@@ -373,8 +373,8 @@ namespace NabuAdaptor.Extensions
             FileHandle FileHandle = session.FileHandles[fileHandle];
 
             if (FileHandle != null && (
-                ((FileHandle.GetFlagsAsNHACPFlags() & NHACPFlags.O_RDONLY) == NHACPFlags.O_RDONLY) ||
-                ((FileHandle.GetFlagsAsNHACPFlags() & NHACPFlags.O_RDWR) == NHACPFlags.O_RDWR)))
+                FileHandle.GetFlagsAsNHACPFlags().HasFlag(NHACPFlags.O_RDONLY) ||
+                FileHandle.GetFlagsAsNHACPFlags().HasFlag(NHACPFlags.O_RDWR)))
             {
                 List<byte> bytes = File.ReadAllBytes(FileHandle.FullFileName).ToList();
                 for (int i = 0; i < length; i++)
@@ -539,7 +539,10 @@ namespace NabuAdaptor.Extensions
             // Get the file handle
             FileHandle FileHandle = session.FileHandles[fileHandle];
 
-            if (FileHandle != null && ((FileHandle.GetFlagsAsOpenFlags() & OpenFlags.ReadWrite) == OpenFlags.ReadWrite))
+
+            if (FileHandle != null && (
+                FileHandle.GetFlagsAsNHACPFlags().HasFlag(NHACPFlags.O_RDONLY) ||
+                FileHandle.GetFlagsAsNHACPFlags().HasFlag(NHACPFlags.O_RDWR)))
             {
                 List<byte> bytes = File.ReadAllBytes(FileHandle.FullFileName).ToList();
                 for (int i = 0; i < length; i++)
@@ -641,7 +644,9 @@ namespace NabuAdaptor.Extensions
             // Retrieve this file handle from the file handle list.
             FileHandle FileHandle = session.FileHandles[fileHandle];
 
-            if (FileHandle != null && ((FileHandle.GetFlagsAsOpenFlags() & OpenFlags.ReadWrite) == OpenFlags.ReadWrite))
+            if (FileHandle != null && (
+                FileHandle.GetFlagsAsNHACPFlags().HasFlag(NHACPFlags.O_RDONLY) ||
+                FileHandle.GetFlagsAsNHACPFlags().HasFlag(NHACPFlags.O_RDWR)))           
             {
                 List<byte> bytes = File.ReadAllBytes(FileHandle.FullFileName).ToList();
                 for (int i = 0; i < length; i++)
@@ -933,7 +938,6 @@ namespace NabuAdaptor.Extensions
             // Get the Session
             NHACPSession session = this.sessions[frame.SessionId];
 
-            //
             MemoryStream outgoingFrame = new MemoryStream();
             
             // get the directory name Length

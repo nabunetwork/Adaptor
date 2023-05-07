@@ -42,15 +42,6 @@ namespace NabuAdaptor.FileTypes
     }
 
     [Flags]
-    public enum OpenFlags
-    {
-        ReadWrite = 0,
-        ReadOnly = 1,
-        Create = 2,
-        Overwrite = 3
-    }
-
-    [Flags]
     public enum CopyMoveFlags
     {
         NoReplace = 0,
@@ -188,15 +179,6 @@ namespace NabuAdaptor.FileTypes
             this.Handle = fileHandle;
             this.FileName = fileName;
             this.Index = 0;
-        }
-
-        /// <summary>
-        /// Gets the flags as Open Flags
-        /// </summary>
-        /// <returns></returns>
-        public OpenFlags GetFlagsAsOpenFlags()
-        {
-            return (OpenFlags)this.Flags;
         }
 
         /// <summary>

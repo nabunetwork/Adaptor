@@ -315,7 +315,7 @@ namespace NabuAdaptor.Extensions
             // ok, get the specified file handle.
             FileHandle FileHandle = this.fileHandles[fileHandle];
 
-            if (FileHandle != null && ((FileHandle.GetFlagsAsFileFlags() & FileFlags.ReadWrite) == FileFlags.ReadWrite))
+            if (FileHandle != null && FileHandle.GetFlagsAsFileFlags().HasFlag(FileFlags.ReadWrite))
             {
                 using (FileStream fileStream = new FileStream(FileHandle.FullFileName, FileMode.Append))
                 {
@@ -348,7 +348,7 @@ namespace NabuAdaptor.Extensions
             // Get the file handle
             FileHandle FileHandle = this.fileHandles[fileHandle];
 
-            if (FileHandle != null && ((FileHandle.GetFlagsAsFileFlags() & FileFlags.ReadWrite) == FileFlags.ReadWrite))
+            if (FileHandle != null && FileHandle.GetFlagsAsFileFlags().HasFlag(FileFlags.ReadWrite))
             {
                 List<byte> bytes = File.ReadAllBytes(FileHandle.FullFileName).ToList();
                 bytes.InsertRange((int)index, data);
@@ -377,7 +377,7 @@ namespace NabuAdaptor.Extensions
             // Get the file handle
             FileHandle FileHandle = this.fileHandles[fileHandle];
 
-            if (FileHandle != null && ((FileHandle.GetFlagsAsFileFlags() & FileFlags.ReadWrite) == FileFlags.ReadWrite))
+            if (FileHandle != null && FileHandle.GetFlagsAsFileFlags().HasFlag(FileFlags.ReadWrite))
             {
                 List<byte> bytes = File.ReadAllBytes(FileHandle.FullFileName).ToList();
                 bytes.RemoveRange((int)index, length);
@@ -409,7 +409,7 @@ namespace NabuAdaptor.Extensions
             // Get the file handle
             FileHandle FileHandle = this.fileHandles[fileHandle];
 
-            if (FileHandle != null && ((FileHandle.GetFlagsAsFileFlags() & FileFlags.ReadWrite) == FileFlags.ReadWrite))
+            if (FileHandle != null && FileHandle.GetFlagsAsFileFlags().HasFlag(FileFlags.ReadWrite))
             {
                 List<byte> bytes = File.ReadAllBytes(FileHandle.FullFileName).ToList();
                 for (int i = 0; i < length; i++)
@@ -474,7 +474,7 @@ namespace NabuAdaptor.Extensions
             sourceFilename = Path.Combine(this.server.GetWorkingDirectory(), this.SanitizeFilename(sourceFilename));
             destinationFilename = Path.Combine(this.server.GetWorkingDirectory(), this.SanitizeFilename(destinationFilename));
 
-            if (!File.Exists(destinationFilename) || (File.Exists(destinationFilename) && ((CopyMoveFlags)flags & CopyMoveFlags.YesReplace) == CopyMoveFlags.YesReplace))
+            if (!File.Exists(destinationFilename) || (File.Exists(destinationFilename) && ((CopyMoveFlags)flags).HasFlag(CopyMoveFlags.YesReplace)))
             {
                 File.Copy(sourceFilename, destinationFilename);
             }
@@ -503,7 +503,7 @@ namespace NabuAdaptor.Extensions
             sourceFilename = Path.Combine(this.server.GetWorkingDirectory(), this.SanitizeFilename(sourceFilename));
             destinationFilename = Path.Combine(this.server.GetWorkingDirectory(), this.SanitizeFilename(destinationFilename));
 
-            if (!File.Exists(destinationFilename) || (File.Exists(destinationFilename) && ((CopyMoveFlags)flags & CopyMoveFlags.YesReplace) == CopyMoveFlags.YesReplace))
+            if (!File.Exists(destinationFilename) || (File.Exists(destinationFilename) && ((CopyMoveFlags)flags).HasFlag(CopyMoveFlags.YesReplace)))
             {
                 File.Move(sourceFilename, destinationFilename);
             }
@@ -551,7 +551,7 @@ namespace NabuAdaptor.Extensions
             FileListFlags flags = (FileListFlags)this.server.ReadByte();
             this.fileDetails.Clear();
 
-            if ((flags & FileListFlags.IncludeDirectories) == FileListFlags.IncludeDirectories)
+            if (flags.HasFlag(FileListFlags.IncludeDirectories))
             {
                 string[] directories = Directory.GetDirectories(Path.Combine(this.server.GetWorkingDirectory(), path), searchPattern);
                 foreach (string directory in directories)
@@ -561,7 +561,7 @@ namespace NabuAdaptor.Extensions
                 }
             }
 
-            if ((flags & FileListFlags.IncludeFiles) == FileListFlags.IncludeFiles)
+            if (flags.HasFlag(FileListFlags.IncludeFiles))
             {
                 string[] files = Directory.GetFiles(Path.Combine(this.server.GetWorkingDirectory(), path), searchPattern);
                 foreach (string file in files)
