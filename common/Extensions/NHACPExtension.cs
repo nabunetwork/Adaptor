@@ -317,7 +317,10 @@ namespace NabuAdaptor.Extensions
             // Retrieve this file handle from the file handle list.
             FileHandle FileHandle = session.FileHandles[fileHandle];
 
-            if (FileHandle != null)
+            if (FileHandle != null && (
+                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDONLY ||
+                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDWR ||
+                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDWP))
             {
                 byte[] data = File.ReadAllBytes(FileHandle.FullFileName).Skip((int)offset).Take(length).ToArray();
 
@@ -373,8 +376,8 @@ namespace NabuAdaptor.Extensions
             FileHandle FileHandle = session.FileHandles[fileHandle];
 
             if (FileHandle != null && (
-                FileHandle.GetFlagsAsNHACPFlags().HasFlag(NHACPFlags.O_RDONLY) ||
-                FileHandle.GetFlagsAsNHACPFlags().HasFlag(NHACPFlags.O_RDWR)))
+                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDWR ||
+                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDWP))
             {
                 List<byte> bytes = File.ReadAllBytes(FileHandle.FullFileName).ToList();
                 for (int i = 0; i < length; i++)
@@ -469,7 +472,10 @@ namespace NabuAdaptor.Extensions
             // Retrieve this file handle from the file handle list.
             FileHandle FileHandle = session.FileHandles[fileHandle];
 
-            if (FileHandle != null)
+            if (FileHandle != null && (
+                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDONLY ||
+                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDWR ||
+                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDWP))
             {
                 byte[] data = File.ReadAllBytes(FileHandle.FullFileName).Skip((int)offset).Take(length).ToArray();
 
@@ -539,11 +545,10 @@ namespace NabuAdaptor.Extensions
             // Get the file handle
             FileHandle FileHandle = session.FileHandles[fileHandle];
 
-
             if (FileHandle != null && (
-                FileHandle.GetFlagsAsNHACPFlags().HasFlag(NHACPFlags.O_RDONLY) ||
-                FileHandle.GetFlagsAsNHACPFlags().HasFlag(NHACPFlags.O_RDWR)))
-            {
+                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDWR ||
+                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDWP))
+                {
                 List<byte> bytes = File.ReadAllBytes(FileHandle.FullFileName).ToList();
                 for (int i = 0; i < length; i++)
                 {
@@ -588,7 +593,10 @@ namespace NabuAdaptor.Extensions
             FileHandle FileHandle = session.FileHandles[fileHandle];
 
             // if the file handle is null, what the heck?
-            if (FileHandle != null)
+            if (FileHandle != null && (
+                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDONLY ||
+                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDWR ||
+                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDWP))
             {
                 byte[] data = File.ReadAllBytes(FileHandle.FullFileName).Skip((int)FileHandle.Index).Take(length).ToArray();
                 FileHandle.Index += data.Length;
@@ -645,8 +653,8 @@ namespace NabuAdaptor.Extensions
             FileHandle FileHandle = session.FileHandles[fileHandle];
 
             if (FileHandle != null && (
-                FileHandle.GetFlagsAsNHACPFlags().HasFlag(NHACPFlags.O_RDONLY) ||
-                FileHandle.GetFlagsAsNHACPFlags().HasFlag(NHACPFlags.O_RDWR)))           
+                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDWR ||
+                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDWP))      
             {
                 List<byte> bytes = File.ReadAllBytes(FileHandle.FullFileName).ToList();
                 for (int i = 0; i < length; i++)
@@ -693,7 +701,10 @@ namespace NabuAdaptor.Extensions
             // Retrieve this file handle from the file handle list.
             FileHandle FileHandle = session.FileHandles[fileHandle];
 
-            if (FileHandle != null)
+            if (FileHandle != null && (
+                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDONLY ||
+                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDWR ||
+                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDWP))
             {
                 FileInfo fileInfo = new FileInfo(FileHandle.FullFileName);
 
@@ -795,7 +806,10 @@ namespace NabuAdaptor.Extensions
             // Retrieve this file handle from the file handle list.
             FileHandle FileHandle = session.FileHandles[fileHandle];
 
-            if (FileHandle != null)
+            if (FileHandle != null && (
+                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDONLY ||
+                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDWR ||
+                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDWP))
             {
                 string[] files = Directory.GetFiles(Path.Combine(this.server.GetWorkingDirectory(), FileHandle.FileName), searchPattern);
                 foreach (string file in files)

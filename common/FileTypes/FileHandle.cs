@@ -125,6 +125,23 @@ namespace NabuAdaptor.FileTypes
         public string WorkingDirectory { get; private set; }
 
         /// <summary>
+        /// Gets the NHACP Access mode from the Flags
+        /// </summary>
+        public NHACPFlags GetNHACPAccessMode
+        {
+            get
+            {
+                if ((this.Flags & 0x7) == 0x0)
+                    return NHACPFlags.O_RDONLY;
+                if ((this.Flags & 0x7) == 0x1)
+                    return NHACPFlags.O_RDWR;
+                if ((this.Flags & 0x7) == 0x2)
+                    return NHACPFlags.O_RDWP;
+                throw new ArgumentOutOfRangeException("Unrecognized access mode");                
+            }
+        }
+
+        /// <summary>
         /// The index into the file where we are currently reading/writing
         /// </summary>
         public long Index
