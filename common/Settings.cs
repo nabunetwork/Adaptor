@@ -39,7 +39,7 @@ namespace NabuAdaptor
         /// <summary>
         /// Minor Version
         /// </summary>
-        public static string minorVersion = "0";
+        public static string minorVersion = "1";
 
         /// <summary>
         /// Default Baud Rate
@@ -54,7 +54,7 @@ namespace NabuAdaptor
         /// <summary>
         /// List of allowed extensions the file API's are allowed to access
         /// </summary>
-        public static string[] AllowedExtensions = { ".bin", ".nabu", ".dsk", ".txt", ".sc2", ".fth", ".sys", ".grb", ".img"};
+        public static string[] AllowedExtensions = {".msx", ".im2", ".pt3", ".bin", ".nabu", ".dsk", ".txt", ".sc2", ".fth", ".sys", ".grb", ".img", ".com", ".dat", ".ini"};
 
         /// <summary>
         /// Internal enum for parsing state

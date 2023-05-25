@@ -233,7 +233,30 @@ namespace NabuAdaptor.Extensions
             // Get the filename
             string fileName = frame.Stream.ReadString(fileNameLen);
 
-            fileName = this.SanitizeFilename(fileName);
+            try
+            {
+                fileName = this.SanitizeFilename(fileName);
+            }
+            catch (Exception e)
+            {
+                this.server.Logger.Log(e.Message, Logger.Target.console);
+                this.SendError(session.Settings.CRC, Errors.ENOENT);
+                return;
+            }
+
+            NHACPFlags createflags = (NHACPFlags)flags;
+
+            if (File.Exists(fileName) && (createflags.HasFlag(NHACPFlags.O_CREAT) && createflags.HasFlag(NHACPFlags.O_EXCL)))
+            {
+                this.SendError(session.Settings.CRC, Errors.EEXIST);
+                return;
+            }
+
+            if ((!Directory.Exists(fileName) && !File.Exists(fileName)) && !createflags.HasFlag(NHACPFlags.O_CREAT))
+            {
+                this.SendError(session.Settings.CRC, Errors.ENOENT);
+                return;
+            }
 
             if (session.FileHandles[fileHandle] != null && fileHandle != byte.MaxValue)
             {
@@ -266,6 +289,16 @@ namespace NabuAdaptor.Extensions
                 }
             }
 
+            if (!File.Exists(fileName) && createflags.HasFlag(NHACPFlags.O_CREAT))
+            {
+                using (System.IO.File.Create(fileName)) ;
+            }
+
+            if (File.Exists(fileName) && createflags.HasFlag(NHACPFlags.O_TRUNC) && !(FileHandle.GetNHACPAccessMode(flags) == NHACPFlags.O_RDONLY))
+            {
+                File.WriteAllText(fileName, string.Empty);
+            }
+
             // If this handle is the max value, find the first unused handle
             if (fileHandle == byte.MaxValue)
             {
@@ -273,17 +306,17 @@ namespace NabuAdaptor.Extensions
                 fileHandle = kvp.Key;
             }
 
-            FileHandle FileHandle = new FileHandle(this.server.GetWorkingDirectory(), fileName, flags, fileHandle);
+            FileHandle sessionFileHandle = new FileHandle(this.server.GetWorkingDirectory(), fileName, flags, fileHandle);
 
             // Mark this handle as in use.
-            session.FileHandles[fileHandle] = FileHandle;
+            session.FileHandles[fileHandle] = sessionFileHandle;
 
             // Let the NABU know what we've done:
             outgoingFrame.WriteBytes(0x83);
             outgoingFrame.WriteBytes(fileHandle);
 
             // no data buffered
-            outgoingFrame.WriteUint((uint)this.FileSize(FileHandle.FullFileName));
+            outgoingFrame.WriteUint((uint)this.FileSize(sessionFileHandle.FullFileName));
 
             this.WriteFrame(session.Settings.CRC, outgoingFrame.ToArray());
         }
@@ -318,9 +351,9 @@ namespace NabuAdaptor.Extensions
             FileHandle FileHandle = session.FileHandles[fileHandle];
 
             if (FileHandle != null && (
-                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDONLY ||
-                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDWR ||
-                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDWP))
+                FileHandle.NHACPAccessMode == NHACPFlags.O_RDONLY ||
+                FileHandle.NHACPAccessMode == NHACPFlags.O_RDWR ||
+                FileHandle.NHACPAccessMode == NHACPFlags.O_RDWP))
             {
                 byte[] data = File.ReadAllBytes(FileHandle.FullFileName).Skip((int)offset).Take(length).ToArray();
 
@@ -337,8 +370,6 @@ namespace NabuAdaptor.Extensions
             }
             else
             {
-                server.Logger.Log($"StorageGet Requested file handle to read: {fileHandle:X06} but it was not found", Logger.Target.console);
-
                 // send back error
                 this.SendError(session.Settings.CRC, Errors.EBADF);
             }
@@ -376,8 +407,8 @@ namespace NabuAdaptor.Extensions
             FileHandle FileHandle = session.FileHandles[fileHandle];
 
             if (FileHandle != null && (
-                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDWR ||
-                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDWP))
+                FileHandle.NHACPAccessMode == NHACPFlags.O_RDWR ||
+                FileHandle.NHACPAccessMode == NHACPFlags.O_RDWP))
             {
                 List<byte> bytes = File.ReadAllBytes(FileHandle.FullFileName).ToList();
                 for (int i = 0; i < length; i++)
@@ -392,7 +423,6 @@ namespace NabuAdaptor.Extensions
             }
             else
             {
-                server.Logger.Log($"Requested handle in HandleDeleteReplace {fileHandle:X06} but it was not found", Logger.Target.console);
                 this.SendError(session.Settings.CRC, Errors.EBADF);
             }
         }
@@ -427,6 +457,7 @@ namespace NabuAdaptor.Extensions
 
             // first byte, the file handle
             byte fileHandle = (byte)frame.Stream.ReadByte();
+
             session.FileHandles[fileHandle] = null;
         }
 
@@ -438,8 +469,6 @@ namespace NabuAdaptor.Extensions
         {
             // Get the Session
             NHACPSession session = this.sessions[frame.SessionId];
-
-            server.Logger.Log("GetErrorDetails", Logger.Target.console);
 
             ushort code = frame.Stream.ReadUshort();
             byte len = (byte)frame.Stream.ReadByte();
@@ -463,7 +492,7 @@ namespace NabuAdaptor.Extensions
 
             if (length > 8192)
             {
-                this.SendError(session.Settings.CRC, Errors.ENOTSUP);
+                this.SendError(session.Settings.CRC, Errors.EINVAL);
                 return;
             }
 
@@ -473,14 +502,22 @@ namespace NabuAdaptor.Extensions
             FileHandle FileHandle = session.FileHandles[fileHandle];
 
             if (FileHandle != null && (
-                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDONLY ||
-                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDWR ||
-                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDWP))
+                FileHandle.NHACPAccessMode == NHACPFlags.O_RDONLY ||
+                FileHandle.NHACPAccessMode == NHACPFlags.O_RDWR ||
+                FileHandle.NHACPAccessMode == NHACPFlags.O_RDWP))
             {
                 byte[] data = File.ReadAllBytes(FileHandle.FullFileName).Skip((int)offset).Take(length).ToArray();
 
-                if (data.Length < length)
+                if (data.Length == 0)
                 {
+                    outgoingFrame.WriteByte(0x84);
+
+                    // write out the length
+                    outgoingFrame.WriteUshort((ushort)data.Length);
+                }
+                else if (data.Length < length)
+                {
+                    // Make a new buffer and PAD to requested length
                     byte[] returnData = new byte[length];
                     Array.Copy(data, returnData, data.Length);
 
@@ -508,8 +545,6 @@ namespace NabuAdaptor.Extensions
             }
             else
             {
-                server.Logger.Log($"StorageGet Requested file handle to read: {fileHandle:X06} but it was not found", Logger.Target.console);
-
                 // send back error
                 this.SendError(session.Settings.CRC, Errors.EBADF);
             }
@@ -524,8 +559,6 @@ namespace NabuAdaptor.Extensions
             // Get the Session
             NHACPSession session = this.sessions[frame.SessionId];
 
-            //server.Logger.Log("StoragePutBlock", Logger.Target.console);
-
             MemoryStream outgoingFrame = new MemoryStream();
 
             byte fileHandle = (byte)frame.Stream.ReadByte();
@@ -534,7 +567,7 @@ namespace NabuAdaptor.Extensions
 
             if (length > 8192)
             {
-                this.SendError(session.Settings.CRC, Errors.ENOTSUP);
+                this.SendError(session.Settings.CRC, Errors.EINVAL);
                 return;
             }
 
@@ -546,23 +579,34 @@ namespace NabuAdaptor.Extensions
             FileHandle FileHandle = session.FileHandles[fileHandle];
 
             if (FileHandle != null && (
-                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDWR ||
-                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDWP))
+                FileHandle.NHACPAccessMode == NHACPFlags.O_RDWR ||
+                FileHandle.NHACPAccessMode == NHACPFlags.O_RDWP))
+            {
+                byte[] bytes = File.ReadAllBytes(FileHandle.FullFileName);
+
+                if (bytes.Length < length)
                 {
-                List<byte> bytes = File.ReadAllBytes(FileHandle.FullFileName).ToList();
-                for (int i = 0; i < length; i++)
+                    bytes = data;
+                }
+                else
                 {
-                    bytes[(int)(i + offset)] = data[i];
+                    if (bytes.Length < (offset + length))
+                    {
+                        byte[] newFile = new byte[offset + length];
+                        Array.Copy(bytes, 0, newFile, 0, bytes.Length);
+                        bytes = newFile;
+                    }
+
+                    Array.Copy(data, 0, bytes, offset, length);
                 }
 
-                File.WriteAllBytes(FileHandle.FullFileName, bytes.ToArray());
+                File.WriteAllBytes(FileHandle.FullFileName, bytes);
 
                 outgoingFrame.WriteByte(0x81);
                 this.WriteFrame(session.Settings.CRC, outgoingFrame.ToArray());
             }
             else
             {
-                server.Logger.Log($"Requested handle in HandleDeleteReplace {fileHandle:X06} but it was not found", Logger.Target.console);
                 this.SendError(session.Settings.CRC, Errors.EBADF);
             }
         }
@@ -575,8 +619,6 @@ namespace NabuAdaptor.Extensions
         {
             // Get the Session
             NHACPSession session = this.sessions[frame.SessionId];
-
-            server.Logger.Log("FileRead", Logger.Target.console);
 
             MemoryStream outgoingFrame = new MemoryStream();
 
@@ -594,9 +636,9 @@ namespace NabuAdaptor.Extensions
 
             // if the file handle is null, what the heck?
             if (FileHandle != null && (
-                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDONLY ||
-                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDWR ||
-                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDWP))
+                FileHandle.NHACPAccessMode == NHACPFlags.O_RDONLY ||
+                FileHandle.NHACPAccessMode == NHACPFlags.O_RDWR ||
+                FileHandle.NHACPAccessMode == NHACPFlags.O_RDWP))
             {
                 byte[] data = File.ReadAllBytes(FileHandle.FullFileName).Skip((int)FileHandle.Index).Take(length).ToArray();
                 FileHandle.Index += data.Length;
@@ -614,7 +656,6 @@ namespace NabuAdaptor.Extensions
             }
             else
             {
-                server.Logger.Log($"Requested file handle for FileHandleReadSeq: {fileHandle:X06} but it was not found", Logger.Target.console);
                 this.SendError(session.Settings.CRC, Errors.EBADF);
             }
         }
@@ -627,8 +668,6 @@ namespace NabuAdaptor.Extensions
         {
             // Get the Session
             NHACPSession session = this.sessions[frame.SessionId];
-
-            server.Logger.Log("FileWrite", Logger.Target.console);
 
             MemoryStream outgoingFrame = new MemoryStream();
 
@@ -653,8 +692,8 @@ namespace NabuAdaptor.Extensions
             FileHandle FileHandle = session.FileHandles[fileHandle];
 
             if (FileHandle != null && (
-                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDWR ||
-                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDWP))      
+                FileHandle.NHACPAccessMode == NHACPFlags.O_RDWR ||
+                FileHandle.NHACPAccessMode == NHACPFlags.O_RDWP))      
             {
                 List<byte> bytes = File.ReadAllBytes(FileHandle.FullFileName).ToList();
                 for (int i = 0; i < length; i++)
@@ -669,7 +708,6 @@ namespace NabuAdaptor.Extensions
             }
             else
             {
-                server.Logger.Log($"Requested file handle for FileHandleReadSeq: {fileHandle:X06} but it was not found", Logger.Target.console);
                 this.SendError(session.Settings.CRC, Errors.EBADF);
             }
         }
@@ -682,8 +720,6 @@ namespace NabuAdaptor.Extensions
         {
             // Get the Session
             NHACPSession session = this.sessions[frame.SessionId];
-
-            server.Logger.Log("FileSeek", Logger.Target.console);
 
             MemoryStream outgoingFrame = new MemoryStream();
 
@@ -702,9 +738,9 @@ namespace NabuAdaptor.Extensions
             FileHandle FileHandle = session.FileHandles[fileHandle];
 
             if (FileHandle != null && (
-                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDONLY ||
-                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDWR ||
-                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDWP))
+                FileHandle.NHACPAccessMode == NHACPFlags.O_RDONLY ||
+                FileHandle.NHACPAccessMode == NHACPFlags.O_RDWR ||
+                FileHandle.NHACPAccessMode == NHACPFlags.O_RDWP))
             {
                 FileInfo fileInfo = new FileInfo(FileHandle.FullFileName);
 
@@ -739,7 +775,6 @@ namespace NabuAdaptor.Extensions
             }
             else
             {
-                server.Logger.Log($"Requested file handle for FileHandleSeek: {fileHandle:X06} but it was not found", Logger.Target.console);
                 this.SendError(session.Settings.CRC, Errors.EBADF);
             }
         }
@@ -779,8 +814,6 @@ namespace NabuAdaptor.Extensions
             // Get the Session
             NHACPSession session = this.sessions[frame.SessionId];
 
-            server.Logger.Log("ListDir", Logger.Target.console);
-
             MemoryStream outgoingFrame = new MemoryStream();
 
             // read the file handle
@@ -791,6 +824,11 @@ namespace NabuAdaptor.Extensions
 
             // read the search pattern
             string searchPattern = frame.Stream.ReadString(length);
+
+            if (string.IsNullOrWhiteSpace(searchPattern))
+            {
+                searchPattern = "*";
+            }
 
             if (session.FileDetails.ContainsKey(fileHandle))
             {
@@ -807,9 +845,9 @@ namespace NabuAdaptor.Extensions
             FileHandle FileHandle = session.FileHandles[fileHandle];
 
             if (FileHandle != null && (
-                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDONLY ||
-                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDWR ||
-                FileHandle.GetNHACPAccessMode == NHACPFlags.O_RDWP))
+                FileHandle.NHACPAccessMode == NHACPFlags.O_RDONLY ||
+                FileHandle.NHACPAccessMode == NHACPFlags.O_RDWR ||
+                FileHandle.NHACPAccessMode == NHACPFlags.O_RDWP))
             {
                 string[] files = Directory.GetFiles(Path.Combine(this.server.GetWorkingDirectory(), FileHandle.FileName), searchPattern);
                 foreach (string file in files)
@@ -843,8 +881,6 @@ namespace NabuAdaptor.Extensions
             // Get the Session
             NHACPSession session = this.sessions[frame.SessionId];
 
-            server.Logger.Log("GetDirEntry", Logger.Target.console);
-
             MemoryStream outgoingFrame = new MemoryStream();
 
             // read the file handle
@@ -865,24 +901,27 @@ namespace NabuAdaptor.Extensions
 
                     outgoingFrame.WriteByte(0x86);
 
-                    // Write date time,
-                    string date = DateTime.Now.ToString("yyyyMMdd");
-                    string time = DateTime.Now.ToString("HHmmss");
+                    //// Write date time,
+                    string date = file.Created.ToString("yyyyMMdd");
+                    string time = file.Created.ToString("HHmmss");
                     outgoingFrame.WriteBytes(System.Text.Encoding.ASCII.GetBytes(date));
                     outgoingFrame.WriteBytes(System.Text.Encoding.ASCII.GetBytes(time));
 
                     // write flags u16
                     if (file.FileType == FileDetails.fileType.Directory)
                     {
-                        outgoingFrame.WriteByte(0x4);
+                        outgoingFrame.WriteUshort(0x4);
                     }
                     else
                     {
-                        outgoingFrame.WriteByte(0x3);
+                        outgoingFrame.WriteUshort(0x3);
                     }
 
                     // write file size u32
                     outgoingFrame.WriteUint((uint)file.FileSize);
+
+                    // write file name
+                    outgoingFrame.WriteString(file.FileName);
                     this.WriteFrame(session.Settings.CRC, outgoingFrame.ToArray());
                     return;
                 }
@@ -898,7 +937,7 @@ namespace NabuAdaptor.Extensions
         }
 
         /// <summary>
-        /// Remove - Not Implemented
+        /// Remove
         /// </summary>
         /// <param name="frame">the NHACPFrame</param>
         public void Remove(NHACPFrame frame)
@@ -906,17 +945,43 @@ namespace NabuAdaptor.Extensions
             // Get the Session
             NHACPSession session = this.sessions[frame.SessionId];
 
-            this.SendError(session.Settings.CRC, Errors.EACCES);
+            MemoryStream outgoingFrame = new MemoryStream();
 
-            //// Get the flags
-            //ushort flags = frame.Stream.ReadUshort();
+            // Get the flags
+            ushort flags = frame.Stream.ReadUshort();
 
-            //// get the filename Length
-            //byte fileNameLen = (byte)frame.Stream.ReadByte();
+            // get the filename Length
+            byte fileNameLen = (byte)frame.Stream.ReadByte();
 
-            //// Get the filename
-            //string fileName = frame.Stream.ReadString(fileNameLen);
-            //fileName = this.SanitizeFilename(fileName);
+            // Get the filename
+            string fileName = frame.Stream.ReadString(fileNameLen);
+            fileName = this.SanitizeFilename(fileName);
+
+            if (flags == 0x0)
+            {
+                // file
+                if (!File.Exists(fileName))
+                {
+                    this.SendError(session.Settings.CRC, Errors.ENOENT);
+                    return;
+                }
+
+                File.Delete(fileName);
+            }
+            else if (flags == 0x1)
+            {
+                // Directory
+                if (Directory.EnumerateFiles(fileName).Any())
+                {
+                    this.SendError(session.Settings.CRC, Errors.ENOTEMPTY);
+                    return;
+                }
+
+                Directory.Delete(fileName);
+            }
+
+            outgoingFrame.WriteByte(0x81);
+            this.WriteFrame(session.Settings.CRC, outgoingFrame.ToArray());
         }
 
         /// <summary>
@@ -927,6 +992,8 @@ namespace NabuAdaptor.Extensions
         {
             // Get the Session
             NHACPSession session = this.sessions[frame.SessionId];
+
+            MemoryStream outgoingFrame = new MemoryStream();
 
             // get the filename Length
             byte fileNameLen = (byte)frame.Stream.ReadByte();
@@ -941,6 +1008,27 @@ namespace NabuAdaptor.Extensions
             // Get the filename
             string newName = frame.Stream.ReadString(fileNameLen);
             newName = this.SanitizeFilename(newName);
+
+            if (File.Exists(oldName))
+            {
+                FileAttributes attributes = File.GetAttributes(oldName);
+
+                if (attributes.HasFlag(FileAttributes.Directory))
+                {
+                    Directory.Move(oldName, newName);
+                }
+                else
+                {
+                    File.Move(oldName, newName);
+                }
+
+                outgoingFrame.WriteByte(0x81);
+                this.WriteFrame(session.Settings.CRC, outgoingFrame.ToArray());
+            }
+            else
+            {
+                this.SendError(session.Settings.CRC, Errors.ENOENT);
+            }            
         }
 
         /// <summary>
@@ -1012,7 +1100,6 @@ namespace NabuAdaptor.Extensions
         /// <returns></returns>
         private string SanitizeFilename(string path)
         {
-
             int index = path.IndexOf('\0');
 
             if (index > 0)
@@ -1020,15 +1107,18 @@ namespace NabuAdaptor.Extensions
                 path = path.Substring(0, index);
             }
 
-            // First, get the file name from path.
-            string filename = Path.GetFileName(path);
+            DirectoryInfo currentDirectory = new DirectoryInfo(server.GetWorkingDirectory());
+            Uri currentDirectoryUri = new Uri(currentDirectory.FullName);
 
-            if (!Settings.AllowedExtensions.Contains(Path.GetExtension(filename), StringComparer.InvariantCultureIgnoreCase))
+            DirectoryInfo requestedFile = new DirectoryInfo(Path.Combine(server.GetWorkingDirectory(), path));
+            Uri requestedFileUri = new Uri(requestedFile.FullName);
+
+            if (currentDirectoryUri.IsBaseOf(requestedFileUri))
             {
-                throw new ArgumentOutOfRangeException($"NABU requested a file extension which is not allowed: {Path.GetExtension(filename)}");
+                return requestedFile.FullName;
             }
 
-            return filename;
+            throw new ArgumentOutOfRangeException($"NABU requested a file outside of the allowed path: {server.GetWorkingDirectory()}");
         }
 
 
@@ -1066,7 +1156,6 @@ namespace NabuAdaptor.Extensions
             }
             else
             {
-                server.Logger.Log($"FileSize, unable to find file {fileName}, returing -1", Logger.Target.console);
                 return -1;
             }
         }

@@ -127,17 +127,11 @@ namespace NabuAdaptor.FileTypes
         /// <summary>
         /// Gets the NHACP Access mode from the Flags
         /// </summary>
-        public NHACPFlags GetNHACPAccessMode
+        public NHACPFlags NHACPAccessMode
         {
             get
             {
-                if ((this.Flags & 0x7) == 0x0)
-                    return NHACPFlags.O_RDONLY;
-                if ((this.Flags & 0x7) == 0x1)
-                    return NHACPFlags.O_RDWR;
-                if ((this.Flags & 0x7) == 0x2)
-                    return NHACPFlags.O_RDWP;
-                throw new ArgumentOutOfRangeException("Unrecognized access mode");                
+                return FileHandle.GetNHACPAccessMode(this.Flags);
             }
         }
 
@@ -161,11 +155,17 @@ namespace NabuAdaptor.FileTypes
                 }
                 else
                 {
-                    FileInfo fileInfo = new FileInfo(this.FullFileName);
-
-                    if (this.index > fileInfo.Length)
+                    if (File.Exists(this.FullFileName))
                     {
-                        this.Index = fileInfo.Length;
+                        FileInfo fileInfo = new FileInfo(this.FullFileName);
+                        FileAttributes fileAttributes = File.GetAttributes(this.FullFileName);
+                        if (!fileAttributes.HasFlag(FileAttributes.Directory))
+                        {
+                            if (this.index > fileInfo.Length)
+                            {
+                                this.Index = fileInfo.Length;
+                            }
+                        }
                     }
                 }
             }
@@ -196,6 +196,20 @@ namespace NabuAdaptor.FileTypes
             this.Handle = fileHandle;
             this.FileName = fileName;
             this.Index = 0;
+        }
+
+        /// <summary>
+        /// Gets the NHACP Access mode from the Flags
+        /// </summary>
+        public static NHACPFlags GetNHACPAccessMode(ushort flags)
+        {
+            if ((flags & 0x7) == 0x0)
+                return NHACPFlags.O_RDONLY;
+            if ((flags & 0x7) == 0x1)
+                return NHACPFlags.O_RDWR;
+            if ((flags & 0x7) == 0x2)
+                return NHACPFlags.O_RDWP;
+            throw new ArgumentOutOfRangeException("Unrecognized access mode");
         }
 
         /// <summary>

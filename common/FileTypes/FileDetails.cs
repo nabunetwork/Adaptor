@@ -41,17 +41,17 @@ namespace NabuAdaptor.FileTypes
         /// <summary>
         /// Gets or sets the Created time
         /// </summary>
-        private DateTime Created { get; set; }
+        public DateTime Created { get; set; }
 
         /// <summary>
         /// Gets or sets the Modified time
         /// </summary>
-        private DateTime Modified { get; set; }
+        public DateTime Modified { get; set; }
 
         /// <summary>
         /// Gets or sets the Filename
         /// </summary>
-        private string FileName { get; set; }
+        public string FileName { get; set; }
 
         /// <summary>
         /// Gets or sets the FileSize

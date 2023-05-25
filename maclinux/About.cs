@@ -86,7 +86,7 @@ namespace NabuAdaptorLinux
             textview1.Buffer.Insert(ref textIter, "NabuNetwork.com. software development team: ");
             this.InsertLink(textview1.Buffer, ref textIter, "https://www.nabunetwork.com/about-us", 2);
             textview1.Buffer.Insert(ref textIter, "\n\nSpecial thanks to:\n");
-            textview1.Buffer.Insert(ref textIter, "Leo Binkowski for preserving the original NABU Network Cycle from 1984 and for DJ Sures for cracking the original NABU PAK code\n\n");
+            textview1.Buffer.Insert(ref textIter, "Leo Binkowski for preserving the original NABU Network Cycle from 1984\n\n");
             textview1.Buffer.Insert(ref textIter, "Additional thanks to various members of the NABU open source community.\n\n");
             textview1.Buffer.Insert(ref textIter, "Remember: NABU Forever!");
         }
