@@ -19,8 +19,7 @@ The NABU Personal Computer can be emulated with [NABU MAME](https://gtamp.com/na
 
 ## Brought to you by:
 
-- [The NabuNetwork.com Development Team](https://nabunetwork.com/about-us/)
-- [Geek With Social Skills](https://www.youtube.com/@geekwithsocialskills)
+- [The NabuNetwork.com](https://nabunetwork.com/about-us/)
 
 ## Shout-outs and High Fives:
 
